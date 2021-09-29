@@ -1,4 +1,4 @@
-package test0001
+package leetcode
 
 //func main() {
 //	nums := []int{2, 7, 11, 15}
