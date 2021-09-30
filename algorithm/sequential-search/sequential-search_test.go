@@ -6,14 +6,16 @@ import (
 
 func TestSequentialSearch(t *testing.T) {
 
-	list := []string{"皮卡丘", "喵喵", "大岩蛇", "綠毛蟲"}
-
-	target := "綠毛蟲"
+	var list []int
+	for i := 1; i <= 10000; i++ {
+		list = append(list, i)
+	}
+	target := 789
 	result := SequentialSearch(list, target)
 
-	expect := 3
+	expect := 788
 
 	if result != expect {
-		t.Fatalf("expect is %s in %d, but faitl", target, expect)
+		t.Fatalf("expect is %d in %d, but faitl", target, expect)
 	}
 }
