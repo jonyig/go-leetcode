@@ -4,6 +4,9 @@ import "log"
 
 var count = 0
 
+// 合併排序法
+// O(n log n)
+// 將所有值切成一個小個單位的區塊，並且依序合併起來
 func MergeSort(list []int) []int {
 	result := execute(list)
 	log.Print(count)

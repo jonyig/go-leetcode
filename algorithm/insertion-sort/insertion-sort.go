@@ -2,6 +2,9 @@ package algorithm
 
 import "log"
 
+// 插入排序
+// O(n²)
+// 依序讀取未排序過的數字，並且往前面找出可以插入的地方
 func InsertionSort(list []int) []int {
 	var (
 		tempCarry   int

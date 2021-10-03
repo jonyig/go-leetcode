@@ -2,6 +2,9 @@ package algorithm
 
 import "log"
 
+// 選擇排序
+// O(n²)
+// 找出最小值，往左邊為排序的值互換
 func SelectionSort(list []int) []int {
 	var (
 		lowCarry int

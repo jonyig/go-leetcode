@@ -1,5 +1,8 @@
 package algorithm
 
+//二元搜尋法
+// O(log n) log 8 => 3
+// 切半比較後，縮短大小，取得範圍
 func BinarySearch(list []int, target int) int {
 	start := 0
 	end := len(list) - 1
