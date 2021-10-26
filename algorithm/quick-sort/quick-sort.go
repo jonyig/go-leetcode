@@ -1,5 +1,8 @@
 package algorithm
 
+// 快速排序法
+// O(n2) || O(nlog2n)
+// 訂出一個中間值，從左邊找比中間值大的值，從右邊找比中間小的值，兩者互換
 func QuickSort(list []int) []int {
 	sortRecursively(list, 0, len(list)-1)
 	return list
