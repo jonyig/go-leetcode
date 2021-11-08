@@ -1,5 +1,8 @@
 package algorithm
 
+// 堆積排序
+// O(nlog2n)
+// 先執行降冪或者升冪排列，然後又最後一個跟第一個更換，再去排序
 func HeapSortDesc(list []int) []int {
 	heapSortInner(list, heapSortDescShiftDown)
 	return list
