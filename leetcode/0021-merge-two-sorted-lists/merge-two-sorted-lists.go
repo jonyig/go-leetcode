@@ -4,6 +4,8 @@ type ListNode struct {
 	Val  int
 	Next *ListNode
 }
+
+//refs https://ithelp.ithome.com.tw/articles/10213265
 //recursive solution
 func MergeTwoSortedLists(l1 *ListNode, l2 *ListNode) *ListNode {
 
