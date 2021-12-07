@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestName(t *testing.T) {
+func TestRemoveElement(t *testing.T) {
 
 	nums := []int{0, 1, 2, 2, 3, 0, 4, 2}
 	val := 2
@@ -15,7 +15,7 @@ func TestName(t *testing.T) {
 		t.Fatalf("expect is %d but result is %d, but fail", expectation, result)
 	}
 
-	nums1 := []int{3,2,2,3}
+	nums1 := []int{3, 2, 2, 3}
 	val1 := 3
 	result1 := removeElement(nums1, val1)
 	expectation1 := 2
