@@ -1,6 +1,9 @@
 package leetcode
 
-import "testing"
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
 func TestProblem(t *testing.T) {
 	type args struct {
@@ -15,15 +18,15 @@ func TestProblem(t *testing.T) {
 			name: "Hello World",
 			args: args{"Hello World"},
 			want: 5,
-		},{
+		}, {
 			name: "   fly me   to   the moon  ",
 			args: args{"   fly me   to   the moon  "},
 			want: 4,
-		},{
+		}, {
 			name: "luffy is still joyboy",
 			args: args{"luffy is still joyboy"},
 			want: 6,
-		},{
+		}, {
 			name: "a",
 			args: args{"a"},
 			want: 1,
@@ -31,9 +34,7 @@ func TestProblem(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := LengthOfLastWord(tt.args.s); got != tt.want {
-				t.Errorf("result = %v, want %v", got, tt.want)
-			}
+			assert.Equal(t, tt.want, LengthOfLastWord(tt.args.s))
 		})
 	}
 }
