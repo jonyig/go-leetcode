@@ -11,7 +11,7 @@ func plusOne(digits []int) []int {
 		isNine = true
 	}
 
-	if isNine {
+	if isNine && digits[0] == 0 {
 		if digits[0] == 0 {
 			digits = append([]int{1}, digits...)
 		}else {

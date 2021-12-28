@@ -35,6 +35,10 @@ func TestProblem(t *testing.T) {
 			name:"[8,9,9,9]",
 			args: args{[]int{8,9,9,9}},
 			want: []int{9,0,0,0},
+		},{
+			name:"[9,8,9]",
+			args: args{[]int{9,8,9}},
+			want: []int{9,9,0},
 		},
 	}
 	for _, tt := range tests {
