@@ -1,12 +1,13 @@
 package cmd
 
 import (
-	"context"
-	"fmt"
 	"github.com/spf13/cobra"
 	"go-leetcode/config"
 	"go-leetcode/pkg"
+	"go-leetcode/playground/distributed-locks/service"
 	"log"
+	"sync"
+	"time"
 )
 
 // redisCmd represents the redis command
@@ -25,13 +26,18 @@ var redisCmd = &cobra.Command{
 			config.Redis.Password,
 			config.Redis.Db,
 		)
-		var ctx = context.Background()
+		var wg sync.WaitGroup
 
-		err = rdb.Set(ctx, "key", "value", 0).Err()
-		if err != nil {
-			panic(err)
+		for i := 1; i <= 10; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				service.Lock(rdb)
+				time.Sleep(4*time.Second)
+				service.Unlock(rdb)
+			}()
 		}
-		fmt.Println(config)
+		wg.Wait()
 	},
 }
 
