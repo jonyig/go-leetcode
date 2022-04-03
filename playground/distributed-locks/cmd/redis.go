@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"go-leetcode/config"
-	"go-leetcode/pkg"
 	"go-leetcode/playground/distributed-locks/service"
 	"log"
 	"sync"
@@ -20,21 +19,16 @@ var redisCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		rdb := pkg.NewRedis(
-			config.Redis.Name,
-			config.Redis.Port,
-			config.Redis.Password,
-			config.Redis.Db,
-		)
+		rdb := service.NewRedis(config.Redis)
 		var wg sync.WaitGroup
 
 		for i := 1; i <= 10; i++ {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				service.Lock(rdb)
+				rdb.Lock()
 				time.Sleep(4*time.Second)
-				service.UnlockUseLua(rdb)
+				rdb.UnlockUseLua()
 			}()
 		}
 		wg.Wait()

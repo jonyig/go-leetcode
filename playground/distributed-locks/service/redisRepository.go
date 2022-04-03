@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"go-leetcode/config"
+	"go-leetcode/pkg"
 	"log"
 	"runtime"
 	"strconv"
@@ -12,11 +14,26 @@ import (
 )
 
 const lockKey = "key1"
-func Lock(redis *redis.Client) {
+
+type RedisRepo struct {
+	client *redis.Client
+}
+
+func NewRedis(config config.Redis) *RedisRepo {
+	rdb := pkg.NewRedis(
+		config.Name,
+		config.Port,
+		config.Password,
+		config.Db,
+	)
+	return &RedisRepo{client: rdb}
+}
+
+func (r *RedisRepo) Lock() {
 	var ctx = context.Background()
 
 	for {
-		nx := redis.SetNX(ctx, lockKey, GetCurrentGoroutineId(), 5*time.Second)
+		nx := r.client.SetNX(ctx, lockKey, GetCurrentGoroutineId(), 5*time.Second)
 		result, err := nx.Result()
 
 		if err == nil && result {
@@ -25,9 +42,9 @@ func Lock(redis *redis.Client) {
 		}
 	}
 }
-func Unlock(redis *redis.Client) {
+func (r *RedisRepo) Unlock() {
 	var ctx = context.Background()
-	nx := redis.Get(ctx, lockKey)
+	nx := r.client.Get(ctx, lockKey)
 	value, err := nx.Result()
 	if err != nil || value == "" {
 		return
@@ -37,11 +54,11 @@ func Unlock(redis *redis.Client) {
 		return
 	}
 	time.Sleep(2 * time.Second)
-	if value, err := redis.Get(ctx, lockKey).Result(); err == nil {
+	if value, err := r.client.Get(ctx, lockKey).Result(); err == nil {
 		log.Printf("%d ==> %s", GetCurrentGoroutineId(), value)
 	}
 	// 此版會有解到別人 key 的問題
-	result := redis.Del(ctx, lockKey)
+	result := r.client.Del(ctx, lockKey)
 	unlockSuccess, err := result.Result()
 	if err == nil && unlockSuccess > 0 {
 		log.Println("unlock success! ", GetCurrentGoroutineId())
@@ -74,9 +91,7 @@ func GetCurrentGoroutineId() int {
 
 }
 
-func UnlockUseLua(client *redis.Client) {
-	time.Sleep(2 * time.Second)
-
+func (r *RedisRepo) UnlockUseLua() {
 	script := redis.NewScript(`
     if redis.call('get', KEYS[1]) == ARGV[1]
     	then
@@ -87,9 +102,9 @@ func UnlockUseLua(client *redis.Client) {
   	`)
 	var ctx = context.Background()
 
-	resp := script.Run(ctx, client, []string{lockKey}, GetCurrentGoroutineId())
+	resp := script.Run(ctx, r.client, []string{lockKey}, GetCurrentGoroutineId())
 	result, err := resp.Result()
-	log.Print(result)
+	log.Print(GetCurrentGoroutineId(),result)
 	log.Print(err)
 	if err != nil || result == 0 {
 		fmt.Println("unlock failed:", err)
