@@ -20,7 +20,7 @@ func Lock(redis *redis.Client) {
 		result, err := nx.Result()
 
 		if err == nil && result {
-			log.Print("lock success ",GetCurrentGoroutineId())
+			log.Print("lock success ", GetCurrentGoroutineId())
 			return
 		}
 	}
@@ -28,7 +28,7 @@ func Lock(redis *redis.Client) {
 func Unlock(redis *redis.Client) {
 	var ctx = context.Background()
 	nx := redis.Get(ctx, lockKey)
-	value,err := nx.Result()
+	value, err := nx.Result()
 	if err != nil || value == "" {
 		return
 	}
@@ -36,15 +36,15 @@ func Unlock(redis *redis.Client) {
 	if value != strconv.Itoa(GetCurrentGoroutineId()) {
 		return
 	}
-	time.Sleep(2*time.Second)
-	if value,err := redis.Get(ctx,lockKey).Result();err ==nil {
-		log.Printf("%d ==> %s",GetCurrentGoroutineId(),value)
+	time.Sleep(2 * time.Second)
+	if value, err := redis.Get(ctx, lockKey).Result(); err == nil {
+		log.Printf("%d ==> %s", GetCurrentGoroutineId(), value)
 	}
 	// 此版會有解到別人 key 的問題
-    result := redis.Del(ctx,lockKey)
-	unlockSuccess,err := result.Result()
+	result := redis.Del(ctx, lockKey)
+	unlockSuccess, err := result.Result()
 	if err == nil && unlockSuccess > 0 {
-		log.Println("unlock success! ",GetCurrentGoroutineId())
+		log.Println("unlock success! ", GetCurrentGoroutineId())
 	} else {
 		log.Println("unlock failed!", err)
 	}
