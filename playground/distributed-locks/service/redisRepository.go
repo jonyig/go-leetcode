@@ -57,10 +57,19 @@ func (r *RedisRepo) SubInventory() {
 }
 func (r *RedisRepo) Lock() {
 	var ctx = context.Background()
+
+	script := redis.NewScript(`
+    if redis.call('get', KEYS[1])
+    	then
+      		return redis.call('setnx', KEYS[2],ARGV[1]) 
+		else
+        	return 0
+     end
+  	`)
 	for {
-		nx := r.client.SetNX(ctx, lockKey, GetCurrentGoroutineId(), 5*time.Second)
+		nx := script.Run(ctx, r.client, []string{inventory,lockKey},5 * time.Second)
 		result, err := nx.Result()
-		if err == nil && result {
+		if err == nil && result == 1 {
 			return
 		}
 	}

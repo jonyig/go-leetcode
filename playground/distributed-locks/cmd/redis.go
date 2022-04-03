@@ -30,8 +30,8 @@ var redisCmd = &cobra.Command{
 			go func() {
 				defer wg.Done()
 				rdb.Lock()
-				time.Sleep(6 * time.Second)
-				rdb.SubInventory()
+				time.Sleep(4 * time.Second)
+				//rdb.SubInventory()
 				if err != nil {
 					log.Print(err)
 				}
