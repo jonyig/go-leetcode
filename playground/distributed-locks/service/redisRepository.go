@@ -13,7 +13,10 @@ import (
 	"time"
 )
 
-const lockKey = "key1"
+const (
+	lockKey   = "key1"
+	inventory = "inventory"
+)
 
 type RedisRepo struct {
 	client *redis.Client
@@ -29,6 +32,19 @@ func NewRedis(config config.Redis) *RedisRepo {
 	return &RedisRepo{client: rdb}
 }
 
+func (r *RedisRepo) SetInventory(amount int) error {
+	var ctx = context.Background()
+	result := r.client.Set(ctx, inventory, amount, 10*time.Second)
+	_, err := result.Result()
+	return err
+}
+
+func (r *RedisRepo) SubInventory() error {
+	var ctx = context.Background()
+	result := r.client.Decr(ctx, inventory)
+	_, err := result.Result()
+	return err
+}
 func (r *RedisRepo) Lock() {
 	var ctx = context.Background()
 
@@ -104,7 +120,7 @@ func (r *RedisRepo) UnlockUseLua() {
 
 	resp := script.Run(ctx, r.client, []string{lockKey}, GetCurrentGoroutineId())
 	result, err := resp.Result()
-	log.Print(GetCurrentGoroutineId(),result)
+	log.Print(GetCurrentGoroutineId(), result)
 	log.Print(err)
 	if err != nil || result == 0 {
 		fmt.Println("unlock failed:", err)
