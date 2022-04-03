@@ -73,3 +73,25 @@ func GetCurrentGoroutineId() int {
 	return goId
 
 }
+
+func UnlockUseLua(client *redis.Client) {
+	time.Sleep(2 * time.Second)
+
+	script := redis.NewScript(`
+    if redis.call('get', KEYS[1]) == ARGV[1]
+    	then
+      		return redis.call('del', KEYS[1]) 
+		else
+        	return 0
+     end
+  	`)
+	var ctx = context.Background()
+
+	resp := script.Run(ctx, client, []string{lockKey}, GetCurrentGoroutineId())
+	result, err := resp.Result()
+	log.Print(result)
+	log.Print(err)
+	if err != nil || result == 0 {
+		fmt.Println("unlock failed:", err)
+	}
+}

@@ -34,7 +34,7 @@ var redisCmd = &cobra.Command{
 				defer wg.Done()
 				service.Lock(rdb)
 				time.Sleep(4*time.Second)
-				service.Unlock(rdb)
+				service.UnlockUseLua(rdb)
 			}()
 		}
 		wg.Wait()
