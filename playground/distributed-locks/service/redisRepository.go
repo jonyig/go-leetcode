@@ -42,34 +42,24 @@ func (r *RedisRepo) SetInventory(amount int) error {
 func (r *RedisRepo) SubInventory() {
 	var ctx = context.Background()
 	script := redis.NewScript(`
-    if redis.call('get', KEYS[1])
-    	then
-      		return redis.call('decr', KEYS[1]) 
-		else
-        	return 0
-     end
+    if tonumber(redis.call('get', KEYS[1])) > 0 then
+		redis.call('decr', KEYS[1])
+		return 1 
+	end
+	return 0
   	`)
 	resp := script.Run(ctx, r.client, []string{inventory})
 	result, err := resp.Result()
-	if err != nil || result == 0 {
+	if err != nil || result == int64(0) {
 		fmt.Println("sub inventory failed:", err)
 	}
 }
 func (r *RedisRepo) Lock() {
 	var ctx = context.Background()
-
-	script := redis.NewScript(`
-    if redis.call('get', KEYS[1])
-    	then
-      		return redis.call('setnx', KEYS[2],ARGV[1]) 
-		else
-        	return 0
-     end
-  	`)
 	for {
-		nx := script.Run(ctx, r.client, []string{inventory,lockKey},5 * time.Second)
+		nx := r.client.SetNX(ctx, lockKey, GetCurrentGoroutineId(), 5*time.Second)
 		result, err := nx.Result()
-		if err == nil && result == 1 {
+		if err == nil && result {
 			return
 		}
 	}
@@ -100,7 +90,6 @@ func (r *RedisRepo) Unlock() {
 }
 
 func GetCurrentGoroutineId() int {
-
 	buf := make([]byte, 128)
 
 	buf = buf[:runtime.Stack(buf, false)]
@@ -120,23 +109,21 @@ func GetCurrentGoroutineId() int {
 	}
 
 	return goId
-
 }
 
 func (r *RedisRepo) UnlockUseLua() {
-	script := redis.NewScript(`
-    if redis.call('get', KEYS[1]) == ARGV[1]
-    	then
-      		return redis.call('del', KEYS[1]) 
-		else
-        	return 0
-     end
-  	`)
 	var ctx = context.Background()
+	script := redis.NewScript(`
+    if redis.call('get', KEYS[1]) == ARGV[1] then
+		return redis.call('del', KEYS[1]) 
+	else
+		return 0
+	end
+  	`)
 
 	resp := script.Run(ctx, r.client, []string{lockKey}, GetCurrentGoroutineId())
 	result, err := resp.Result()
-	if err != nil || result == 0 {
+	if err != nil || result == int64(0) {
 		fmt.Println("unlock failed:", err)
 	}
 }
