@@ -115,7 +115,8 @@ func (r *RedisRepo) UnlockUseLua() {
 	var ctx = context.Background()
 	script := redis.NewScript(`
     if redis.call('get', KEYS[1]) == ARGV[1] then
-		return redis.call('del', KEYS[1]) 
+		redis.call('del', KEYS[1])
+		return 1
 	else
 		return 0
 	end
