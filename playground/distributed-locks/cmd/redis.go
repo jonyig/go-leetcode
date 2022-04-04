@@ -20,7 +20,7 @@ var redisCmd = &cobra.Command{
 		}
 		rdb := service.NewRedis(config.Redis)
 		var wg sync.WaitGroup
-		err = rdb.SetInventory(3)
+		err = rdb.SetInventory(2)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -30,7 +30,7 @@ var redisCmd = &cobra.Command{
 			go func() {
 				defer wg.Done()
 				rdb.Lock()
-				time.Sleep(1 * time.Second)
+				time.Sleep(6 * time.Second)
 				rdb.SubInventory()
 				rdb.UnlockUseLua()
 			}()
