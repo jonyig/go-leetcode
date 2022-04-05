@@ -15,10 +15,10 @@ type (
 
 	// Redis -.
 	Redis struct {
-		Name     string `json-required:"true" json:"name"`
-		Port     string `json-required:"true" json:"port"`
-		Password string `json-required:"true" json:"password"`
-		Db       int    `json:"db" json-default:"0"`
+		Name     string `env-required:"true" json:"name"`
+		Port     string `env-required:"true" json:"port"`
+		Password string `env-required:"true" json:"password"`
+		Db       int    `env-default:"1" json:"db"`
 	}
 )
 
