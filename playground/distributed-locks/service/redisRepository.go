@@ -17,6 +17,7 @@ const (
 	lockKey   = "key1"
 	inventory = "inventory"
 )
+
 var (
 	unlockCh = make(chan int, 0) //用户解锁通知通道
 )
@@ -63,7 +64,7 @@ func (r *RedisRepo) Lock() {
 		nx := r.client.SetNX(ctx, lockKey, GetCurrentGoroutineId(), 5*time.Second)
 		result, err := nx.Result()
 		if err == nil && result {
-			log.Print("lock",result, err,GetCurrentGoroutineId())
+			log.Print("lock", result, err, GetCurrentGoroutineId())
 			go r.watchDog(GetCurrentGoroutineId())
 			return
 		}
@@ -130,9 +131,9 @@ func (r *RedisRepo) UnlockUseLua() {
 	resp := script.Run(ctx, r.client, []string{lockKey}, GetCurrentGoroutineId())
 	result, err := resp.Result()
 	if err != nil || result == int64(0) {
-		fmt.Println("unlock failed:", err,GetCurrentGoroutineId())
+		fmt.Println("unlock failed:", err, GetCurrentGoroutineId())
 	}
-		log.Print("unlock",result, err,GetCurrentGoroutineId())
+	log.Print("unlock", result, err, GetCurrentGoroutineId())
 	unlockCh <- 1
 }
 
@@ -150,11 +151,11 @@ func (r *RedisRepo) watchDog(goId int) {
 	for {
 		select {
 		case <-expTicker.C:
-			resp := script.Run(ctx,r.client, []string{lockKey}, goId, 5)
+			resp := script.Run(ctx, r.client, []string{lockKey}, goId, 5)
 			if result, err := resp.Result(); err != nil || result == int64(0) {
 				log.Println("expire lock failed", err)
 			}
-		case <-unlockCh: //任务完成后用户解锁通知看门狗退出
+		case <-unlockCh:
 			return
 		}
 	}
