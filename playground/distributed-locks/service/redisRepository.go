@@ -15,7 +15,10 @@ import (
 
 const (
 	lockKey   = "key1"
+	lockKeyTime   = 5*time.Second
 	inventory = "inventory"
+	inventoryTime = 10*time.Minute
+	watchDogIntervalTime = time.Second * 3
 )
 
 var (
@@ -38,7 +41,7 @@ func NewRedis(config config.Redis) *RedisRepo {
 
 func (r *RedisRepo) SetInventory(amount int) error {
 	var ctx = context.Background()
-	result := r.client.Set(ctx, inventory, amount, 10*time.Minute)
+	result := r.client.Set(ctx, inventory, amount, inventoryTime)
 	_, err := result.Result()
 	return err
 }
@@ -61,7 +64,7 @@ func (r *RedisRepo) SubInventory() {
 func (r *RedisRepo) Lock() {
 	var ctx = context.Background()
 	for {
-		nx := r.client.SetNX(ctx, lockKey, GetCurrentGoroutineId(), 5*time.Second)
+		nx := r.client.SetNX(ctx, lockKey, GetCurrentGoroutineId(), lockKeyTime)
 		result, err := nx.Result()
 		if err == nil && result {
 			log.Print("lock", result, err, GetCurrentGoroutineId())
@@ -139,7 +142,7 @@ func (r *RedisRepo) UnlockUseLua() {
 
 func (r *RedisRepo) watchDog(goId int) {
 	var ctx = context.Background()
-	expTicker := time.NewTicker(time.Second * 3)
+	expTicker := time.NewTicker(watchDogIntervalTime)
 
 	script := redis.NewScript(`
 		if redis.call('get', KEYS[1]) == ARGV[1] then
@@ -151,7 +154,7 @@ func (r *RedisRepo) watchDog(goId int) {
 	for {
 		select {
 		case <-expTicker.C:
-			resp := script.Run(ctx, r.client, []string{lockKey}, goId, 5)
+			resp := script.Run(ctx, r.client, []string{lockKey}, goId, lockKeyTime)
 			if result, err := resp.Result(); err != nil || result == int64(0) {
 				log.Println("expire lock failed", err)
 			}
