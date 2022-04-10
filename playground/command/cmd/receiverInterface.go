@@ -26,7 +26,7 @@ var receiverInterfaceCmd = &cobra.Command{
 		sPtrs[1].Write("test")
 
 		s := receiver_interface.S{Data: "A"}
-
+		// 雖可以成功呼叫，但無法成功寫入
 		s.Write("123")
 		log.Print(s.Read())
 	},
