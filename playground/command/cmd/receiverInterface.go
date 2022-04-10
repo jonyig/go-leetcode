@@ -36,11 +36,15 @@ var receiverInterfaceCmd = &cobra.Command{
 		s2Val := receiver_interface.S2{}
 		s2Ptr := &receiver_interface.S2{}
 
-		var _ receiver_interface.F
-		_ = s1Val
-		_ = s1Ptr
-		_ = s2Ptr
-		_ = s2Val
+		var i receiver_interface.F
+		i = s1Val
+		i = s1Ptr
+		i = s2Ptr
+		// s2Val 為 value struct 無法對應到 指針方法的實作
+		//i = s2Val
+
+		log.Print(s2Val)
+		log.Print(i)
 	},
 }
 
