@@ -1,4 +1,4 @@
-package service
+package implement_interface
 
 type MyInterface interface {
 	Test() string
