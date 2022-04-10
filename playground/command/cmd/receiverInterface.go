@@ -29,6 +29,18 @@ var receiverInterfaceCmd = &cobra.Command{
 		// 雖可以成功呼叫，但無法成功寫入
 		s.Write("123")
 		log.Print(s.Read())
+
+
+		s1Val := receiver_interface.S1{}
+		s1Ptr := &receiver_interface.S1{}
+		s2Val := receiver_interface.S2{}
+		s2Ptr := &receiver_interface.S2{}
+
+		var _ receiver_interface.F
+		_ = s1Val
+		_ = s1Ptr
+		_ = s2Ptr
+		_ = s2Val
 	},
 }
 
