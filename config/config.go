@@ -11,6 +11,7 @@ type (
 	// Config -.
 	Config struct {
 		Redis Redis `json:"redis"`
+		MySQL MySQL `json:"mysql"`
 	}
 
 	// Redis -.
@@ -19,6 +20,14 @@ type (
 		Port     string `env-required:"true" json:"port"`
 		Password string `env-required:"true" json:"password"`
 		Db       int    `env-default:"1" json:"db"`
+	}
+	// MySQL -.
+	MySQL struct {
+		Host     string `env-required:"true" json:"host"`
+		Port     string `env-required:"true" json:"port"`
+		User     string `env-required:"true" json:"user"`
+		Password string `env-required:"true" json:"password"`
+		Db       string `env-required:"true" json:"db"`
 	}
 )
 
